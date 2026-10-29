@@ -1,2 +1,1 @@
-# appstatic
-only static pages
+Privacy Policy
