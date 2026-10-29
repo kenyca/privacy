@@ -1,0 +1,2 @@
+# appstatic
+only static pages
