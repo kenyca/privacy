@@ -14,6 +14,9 @@
       h2 { margin-top: 28px; font-size: 1.25rem; }
       .updated { color: #4b5c59; }
       a { color: #006a60; }
+      .language-picker { margin-bottom: 24px; text-align: right; }
+      .language-picker select { padding: 8px 10px; font: inherit; }
+      [hidden] { display: none !important; }
       @media (max-width: 600px) {
         main { margin: 0; padding: 24px 18px; }
       }
@@ -21,13 +24,20 @@
   </head>
   <body>
     <main>
+      <div class="language-picker">
+        <label id="language-label" for="language">Language / Sprache:</label>
+        <select id="language" aria-label="Language / Sprache">
+          <option value="en">English</option>
+          <option value="de">Deutsch</option>
+        </select>
+      </div>
       <h1>Roomera Privacy Policy / Datenschutzerklärung</h1>
       <p class="updated">Last updated / Stand: 28 October 2026</p>
 
       <h2>Controller / Verantwortlicher</h2>
       <p>SAF Technologie | Carine Kemayou Nyamen &amp; Associates is responsible for Roomera. Privacy contact: <a href="mailto:roomera@saf-technologie.com">roomera@saf-technologie.com</a>.</p>
       <p>SAF Technologie | Carine Kemayou Nyamen &amp; Associates ist für Roomera verantwortlich. Datenschutzkontakt: <a href="mailto:roomera@saf-technologie.com">roomera@saf-technologie.com</a>.</p>
-      <p><strong>Postal address / Postanschrift:</strong> [Saf Technologie Braunschweig Germany]</p>
+      <p class="shared"><strong>Postal address / Postanschrift:</strong> [Saf Technologie Braunschweig Germany]</p>
 
       <h2>Roles for hotel data / Rollen bei Hoteldaten</h2>
       <p>For account, profile and subscription data, SAF Technologie determines the purposes and means of processing. For hotel, booking and employee records entered by a hotel customer, that customer or hotel operator may determine the purposes and means of processing and may be the controller; Roomera may process those records on the hotel operator’s behalf under the applicable agreement. Hotel operators are responsible for providing the required privacy information to their guests and employees and for establishing a lawful basis for their use of the app. Please contact the relevant hotel operator about its use of these records.</p>
@@ -71,5 +81,56 @@
       <p>We may update this policy when Roomera or applicable requirements change. The latest version and its update date will be published on this page.</p>
       <p>Wir können diese Datenschutzerklärung bei Änderungen an Roomera oder anwendbaren Anforderungen aktualisieren. Die aktuelle Fassung und ihr Änderungsdatum werden auf dieser Seite veröffentlicht.</p>
     </main>
+    <script>
+      const languageSelect = document.querySelector("#language");
+      const main = document.querySelector("main");
+      const headings = [...main.querySelectorAll("h2")];
+
+      headings.forEach(heading => {
+        const translations = heading.textContent.split(" / ");
+        if (translations.length === 2) {
+          heading.dataset.en = translations[0];
+          heading.dataset.de = translations[1];
+        }
+      });
+
+      function setLanguage(language) {
+        document.documentElement.lang = language;
+        document.title = language === "de"
+          ? "Roomera Datenschutzerklärung"
+          : "Roomera Privacy Policy";
+        document.querySelector("#language-label").textContent =
+          language === "de" ? "Sprache:" : "Language:";
+        document.querySelector(".updated").textContent = language === "de"
+          ? "Stand: 28. Oktober 2026"
+          : "Last updated: 28 October 2026";
+
+        const title = main.querySelector("h1");
+        title.textContent = language === "de"
+          ? "Roomera Datenschutzerklärung"
+          : "Roomera Privacy Policy";
+
+        headings.forEach(heading => {
+          if (heading.dataset.en && heading.dataset.de) {
+            heading.textContent = heading.dataset[language];
+          }
+
+          let paragraph = heading.nextElementSibling;
+          let paragraphIndex = 0;
+          while (paragraph && paragraph.tagName !== "H2") {
+            if (paragraph.tagName === "P" && !paragraph.classList.contains("shared")) {
+              paragraph.hidden = paragraphIndex % 2 !== (language === "de" ? 1 : 0);
+              paragraphIndex++;
+            }
+            paragraph = paragraph.nextElementSibling;
+          }
+        });
+      }
+
+      languageSelect.addEventListener("change", () => {
+        setLanguage(languageSelect.value);
+      });
+      setLanguage(languageSelect.value);
+    </script>
   </body>
 </html>
